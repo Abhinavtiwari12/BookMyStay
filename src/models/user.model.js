@@ -39,6 +39,10 @@ const userSchema = new Schema ({
             message: "Invilade email"
         }
     },
+    bookings:[{
+        type: Schema.Types.ObjectId,
+        ref:"Booking"
+    }],
     refreshToken:{
         type: String
     }
