@@ -13,6 +13,16 @@ const ownerSchema = new Schema ({
         type: String,
         required: true
     },
+    city:{
+        type:String,
+        required:true
+    },
+    state:{
+        type:String
+    },
+    description:{
+        type:String
+    },
     ownerName: {
         type: String,
         required: true
@@ -43,9 +53,24 @@ const ownerSchema = new Schema ({
         required :true,
         default: 0
     },
+    pricePerNight:{
+        type:Number,
+        required:true
+    },
+    totalRooms:{
+        type:Number,
+        required:true
+    },
+    amenities:[{
+        type:String
+    }],
+
+    hotelImages:[{
+        type:String
+    }],
     refreshToken:{
         type: String
-    }
+    },
 },{timestamps: true}
 )
 
