@@ -26,7 +26,6 @@ const generateAccessAndRefereshTokens = async(userId) => {
 }
 
 
-
 const createUser = asyncHandler(async (req, res) => {
     const  { fullName, password, email, userName,phoneNumber } =req.body
 
@@ -56,7 +55,6 @@ const createUser = asyncHandler(async (req, res) => {
         new apiResponse(201, registeredUser.data, registeredUser.message)
     )
 })
-
 
 
 const userlogin = asyncHandler(async (req, res) => {
@@ -128,5 +126,15 @@ const userProfile = async (req, res) => {
   });
 };
 
+
+const bookHotel = asyncHandler(async ( req, res) => {
+    const {hotel, checkInDate, checkOutDate, numberOfRooms, user } = req.body
+
+    if (
+        [hotel, checkInDate, checkOutDate, numberOfRooms, user ].some((feild) => feild?.trim() === "")
+    ) {
+        throw new ApiError(400, "All feilds are require")
+    }
+})
 
 export { createUser, userlogin, userlogout, userProfile }
