@@ -127,14 +127,70 @@ const userProfile = async (req, res) => {
 };
 
 
-const bookHotel = asyncHandler(async ( req, res) => {
-    const {hotel, checkInDate, checkOutDate, numberOfRooms, user } = req.body
+// const bookHotel = asyncHandler(async ( req, res) => {
+//     const {hotel, checkInDate, checkOutDate, numberOfRooms, user } = req.body
 
-    if (
-        [hotel, checkInDate, checkOutDate, numberOfRooms, user ].some((feild) => feild?.trim() === "")
-    ) {
-        throw new ApiError(400, "All feilds are require")
+//     if (
+//         [hotel, checkInDate, checkOutDate, numberOfRooms, user ].some((feild) => feild?.trim() === "")
+//     ) {
+//         throw new ApiError(400, "All feilds are require")
+//     }
+// })
+
+const bookHotel = asyncHandler(async (req,res)=>{
+
+    const {hotelId, checkInDate, checkOutDate, numberOfRooms} = req.body
+
+    if(!hotelId || !checkInDate || !checkOutDate || !numberOfRooms){
+        throw new ApiError(400,"All fields are required")
     }
+
+    const hotel = await Owner.findById(hotelId)
+
+    if(!hotel){
+        throw new ApiError(404,"Hotel not found")
+    }
+
+    if(hotel.availableRooms < numberOfRooms){
+        throw new ApiError(400,"Rooms not available")
+    }
+
+    // calculate total price
+    const days = Math.ceil(
+        (new Date(checkOutDate) - new Date(checkInDate)) /
+        (1000 * 60 * 60 * 24)
+    )
+
+    const totalPrice = days * hotel.pricePerNight * numberOfRooms
+
+    const booking = await Booking.create({
+        user:req.user._id,
+        hotel:hotelId,
+        checkInDate,
+        checkOutDate,
+        numberOfRooms,
+        totalPrice
+    })
+
+    // update available rooms
+    hotel.availableRooms -= numberOfRooms
+    await hotel.save()
+
+    return res.status(201).json(
+        new apiResponse(201, booking, "Hotel booked successfully")
+    )
+
 })
 
-export { createUser, userlogin, userlogout, userProfile }
+const getMyBookings = asyncHandler(async (req,res)=>{
+
+    const bookings = await Booking.find({user:req.user._id})
+    .populate("hotel","hotelName address pricePerNight")
+
+    return res.status(200).json(
+        new apiResponse(200, bookings,"User bookings fetched successfully")
+    )
+
+})
+
+export { createUser, userlogin, userlogout, userProfile, bookHotel, getMyBookings }
