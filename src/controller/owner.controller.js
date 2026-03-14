@@ -25,8 +25,6 @@ const generateAccessAndRefereshTokens = async(userId) => {
    }
 }
 
-
-
 const createUser = asyncHandler(async (req, res) => {
     const  { hotelName, password, email, ownerName, phoneNumber, address, availableRooms } =req.body
 
@@ -58,8 +56,6 @@ const createUser = asyncHandler(async (req, res) => {
         new apiResponse(201, registeredUser.data, registeredUser.message)
     )
 })
-
-
 
 const userlogin = asyncHandler(async (req, res) => {
 
@@ -131,4 +127,28 @@ const userProfile = async (req, res) => {
 };
 
 
-export { createUser, userlogin, userlogout, userProfile }
+const checkIn = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    if(booking.bookingStatus !== "confirmed"){
+        throw new ApiError(400,"Booking cannot be checked in")
+    }
+
+    booking.bookingStatus = "checked-in"
+
+    await booking.save()
+
+    return res.status(200).json(
+        new ApiResponse(200, booking,"Check-in successful")
+    )
+
+})
+
+export { createUser, userlogin, userlogout, userProfile, checkIn }
