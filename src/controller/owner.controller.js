@@ -3,6 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { Owner } from "../models/owner.model.js";
 import { findUser, registerUser } from "../service/user.service.js";
+import { findOwner, registerOwner } from "../service/owner.service.js";
+import { Booking } from "../models/booking.model.js";
 
 
 
@@ -25,7 +27,7 @@ const generateAccessAndRefereshTokens = async(userId) => {
    }
 }
 
-const createUser = asyncHandler(async (req, res) => {
+const createOwner = asyncHandler(async (req, res) => {
     const  { hotelName, password, email, ownerName, phoneNumber, address, availableRooms } =req.body
 
     if (
@@ -34,11 +36,11 @@ const createUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All feilds are require")
     }
 
-    const checkExistedUser = {
+    const checkExistedOwner = {
         email,
-        email
+        phoneNumber
     }
-    const existedUser = await findUser(checkExistedUser)
+    const existedUser = await findOwner(checkExistedOwner)
 
     const createUser = {
         hotelName,
@@ -50,14 +52,14 @@ const createUser = asyncHandler(async (req, res) => {
         availableRooms
     }
 
-    const registeredUser = await registerUser(createUser)
+    const registeredOwner = await registerOwner(createUser)
 
     return res.status(201).json(
-        new apiResponse(201, registeredUser.data, registeredUser.message)
+        new apiResponse(201, registeredOwner.data, registeredOwner.message)
     )
 })
 
-const userlogin = asyncHandler(async (req, res) => {
+const ownerlogin = asyncHandler(async (req, res) => {
 
     const {email, userName, password} = req.body
 
@@ -67,7 +69,7 @@ const userlogin = asyncHandler(async (req, res) => {
 
     const query = email ? { email } : { userName };
 
-    const user = await User.findOne(query)
+    const user = await Owner.findOne(query)
 
     if (!user) {
         throw new ApiError(400, "username, email or password is wrong.")
@@ -81,7 +83,7 @@ const userlogin = asyncHandler(async (req, res) => {
 
     const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
 
-    const loggedInUser = await User.findById(user._id).select("-password")
+    const loggedInUser = await Owner.findById(user._id).select("-password")
 
     const options = {
         httpOnly: true,
@@ -93,8 +95,8 @@ const userlogin = asyncHandler(async (req, res) => {
 })
 
 
-const userlogout = asyncHandler(async (req, res) => {
-    await User.findByIdAndUpdate(
+const ownerlogout = asyncHandler(async (req, res) => {
+    await Owner.findByIdAndUpdate(
         req.user._id,
         {
             $unset: {
@@ -119,7 +121,7 @@ const userlogout = asyncHandler(async (req, res) => {
 })
 
 
-const userProfile = async (req, res) => {
+const ownerProfile = async (req, res) => {
   return res.status(200).json({
     success: true,
     user: req.user,
@@ -146,9 +148,9 @@ const checkIn = asyncHandler(async (req,res)=>{
     await booking.save()
 
     return res.status(200).json(
-        new ApiResponse(200, booking,"Check-in successful")
+        new apiResponse(200, booking,"Check-in successful")
     )
 
 })
 
-export { createUser, userlogin, userlogout, userProfile, checkIn }
+export { createOwner, ownerlogin, ownerlogout, ownerProfile, checkIn }

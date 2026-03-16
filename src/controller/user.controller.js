@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import { findUser, registerUser } from "../service/user.service.js";
+import { Booking } from "../models/booking.model.js";
 
 
 
@@ -126,16 +127,6 @@ const userProfile = async (req, res) => {
   });
 };
 
-
-// const bookHotel = asyncHandler(async ( req, res) => {
-//     const {hotel, checkInDate, checkOutDate, numberOfRooms, user } = req.body
-
-//     if (
-//         [hotel, checkInDate, checkOutDate, numberOfRooms, user ].some((feild) => feild?.trim() === "")
-//     ) {
-//         throw new ApiError(400, "All feilds are require")
-//     }
-// })
 
 const bookHotel = asyncHandler(async (req,res)=>{
 
