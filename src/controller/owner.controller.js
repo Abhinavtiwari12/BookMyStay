@@ -153,4 +153,41 @@ const checkIn = asyncHandler(async (req,res)=>{
 
 })
 
-export { createOwner, ownerlogin, ownerlogout, ownerProfile, checkIn }
+const checkOut = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    if(booking.bookingStatus !== "checked-in"){
+        throw new ApiError(400,"User has not checked-in")
+    }
+
+    booking.bookingStatus = "completed"
+
+    await booking.save()
+
+    const hotel = await Owner.findById(booking.hotel)
+
+    hotel.availableRooms += booking.numberOfRooms
+
+    await hotel.save()
+
+    return res.status(200).json(
+        new apiResponse(200, booking,"Check-out successful")
+    )
+
+})
+
+export { 
+    createOwner, 
+    ownerlogin, 
+    ownerlogout, 
+    ownerProfile, 
+    checkIn, 
+    checkOut 
+}
