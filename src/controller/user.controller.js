@@ -184,4 +184,40 @@ const getMyBookings = asyncHandler(async (req,res)=>{
 
 })
 
-export { createUser, userlogin, userlogout, userProfile, bookHotel, getMyBookings }
+const cancelBooking = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    if(booking.bookingStatus === "cancelled"){
+        throw new ApiError(400,"Booking already cancelled")
+    }
+
+    booking.bookingStatus = "cancelled"
+    await booking.save()
+
+    const hotel = await Owner.findById(booking.hotel)
+
+    hotel.availableRooms += booking.numberOfRooms
+    await hotel.save()
+
+    return res.status(200).json(
+        new apiResponse(200, booking,"Booking cancelled successfully")
+    )
+
+})
+
+export { 
+    createUser, 
+    userlogin, 
+    userlogout, 
+    userProfile, 
+    bookHotel, 
+    getMyBookings, 
+    cancelBooking 
+}
