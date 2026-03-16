@@ -2,7 +2,7 @@ import { Owner } from "../models/owner.model.js";
 
 
 
-export const findUser = async (condition) => {
+export const findOwner = async (condition) => {
   const user = await Owner.findOne(condition);
 
   if (!user) {
@@ -20,7 +20,7 @@ export const findUser = async (condition) => {
   };
 };
 
-export const registerUser = async (createUser) => {
+export const registerOwner = async (createUser) => {
   const user = await Owner.create(createUser);
 
   if (!user) {
