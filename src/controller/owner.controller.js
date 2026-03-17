@@ -203,6 +203,25 @@ const seeBookings = asyncHandler(async (req,res)=>{
 
 })
 
+const seeUserDetails = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+        .populate("user", "fullName email phoneNumber")
+        .populate("hotel")
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    return res.status(200).json(
+        new apiResponse(200, booking.user, "User details fetched successfully")
+    )
+
+})
+
+
 export { 
     createOwner, 
     ownerlogin, 
@@ -210,5 +229,6 @@ export {
     ownerProfile, 
     checkIn, 
     checkOut,
-    seeBookings
+    seeBookings,
+    seeUserDetails
 }
