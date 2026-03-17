@@ -183,11 +183,32 @@ const checkOut = asyncHandler(async (req,res)=>{
 
 })
 
+const seeBookings = asyncHandler(async (req,res)=>{
+
+    const ownerId = req.user._id
+
+    const bookings = await Booking.find({ hotel: ownerId })
+        .populate("user", "fullName email phoneNumber")
+        .sort({ createdAt: -1 })
+
+    if(!bookings.length){
+        return res.status(200).json(
+            new apiResponse(200, [], "No bookings found")
+        )
+    }
+
+    return res.status(200).json(
+        new apiResponse(200, bookings, "Bookings fetched successfully")
+    )
+
+})
+
 export { 
     createOwner, 
     ownerlogin, 
     ownerlogout, 
     ownerProfile, 
     checkIn, 
-    checkOut 
+    checkOut,
+    seeBookings
 }
