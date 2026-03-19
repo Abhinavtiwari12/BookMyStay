@@ -212,6 +212,61 @@ const cancelBooking = asyncHandler(async (req,res)=>{
 
 })
 
+
+const checkIn = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    if(booking.bookingStatus !== "confirmed"){
+        throw new ApiError(400,"Booking cannot be checked in")
+    }
+
+    booking.bookingStatus = "checked-in"
+
+    await booking.save()
+
+    return res.status(200).json(
+        new apiResponse(200, booking,"Check-in successful")
+    )
+
+})
+
+const checkOut = asyncHandler(async (req,res)=>{
+
+    const {bookingId} = req.params
+
+    const booking = await Booking.findById(bookingId)
+
+    if(!booking){
+        throw new ApiError(404,"Booking not found")
+    }
+
+    if(booking.bookingStatus !== "checked-in"){
+        throw new ApiError(400,"User has not checked-in")
+    }
+
+    booking.bookingStatus = "completed"
+
+    await booking.save()
+
+    const hotel = await Owner.findById(booking.hotel)
+
+    hotel.availableRooms += booking.numberOfRooms
+
+    await hotel.save()
+
+    return res.status(200).json(
+        new apiResponse(200, booking,"Check-out successful")
+    )
+
+})
+
 export { 
     createUser, 
     userlogin, 
@@ -219,5 +274,7 @@ export {
     userProfile, 
     bookHotel, 
     getMyBookings, 
-    cancelBooking 
+    cancelBooking,
+    checkIn, 
+    checkOut
 }
