@@ -129,60 +129,6 @@ const ownerProfile = async (req, res) => {
 };
 
 
-const checkIn = asyncHandler(async (req,res)=>{
-
-    const {bookingId} = req.params
-
-    const booking = await Booking.findById(bookingId)
-
-    if(!booking){
-        throw new ApiError(404,"Booking not found")
-    }
-
-    if(booking.bookingStatus !== "confirmed"){
-        throw new ApiError(400,"Booking cannot be checked in")
-    }
-
-    booking.bookingStatus = "checked-in"
-
-    await booking.save()
-
-    return res.status(200).json(
-        new apiResponse(200, booking,"Check-in successful")
-    )
-
-})
-
-const checkOut = asyncHandler(async (req,res)=>{
-
-    const {bookingId} = req.params
-
-    const booking = await Booking.findById(bookingId)
-
-    if(!booking){
-        throw new ApiError(404,"Booking not found")
-    }
-
-    if(booking.bookingStatus !== "checked-in"){
-        throw new ApiError(400,"User has not checked-in")
-    }
-
-    booking.bookingStatus = "completed"
-
-    await booking.save()
-
-    const hotel = await Owner.findById(booking.hotel)
-
-    hotel.availableRooms += booking.numberOfRooms
-
-    await hotel.save()
-
-    return res.status(200).json(
-        new apiResponse(200, booking,"Check-out successful")
-    )
-
-})
-
 const seeBookings = asyncHandler(async (req,res)=>{
 
     const ownerId = req.user._id
@@ -221,14 +167,43 @@ const seeUserDetails = asyncHandler(async (req,res)=>{
 
 })
 
+const updateAvailableRooms = asyncHandler(async (req,res)=>{
+
+    const {availableRooms} = req.body
+
+    if(availableRooms === undefined){
+        throw new ApiError(400,"Available rooms is required")
+    }
+
+    if(availableRooms < 0){
+        throw new ApiError(400,"Rooms cannot be negative")
+    }
+
+    const ownerId = req.user._id
+
+    const hotel = await Owner.findById(ownerId)
+
+    if(!hotel){
+        throw new ApiError(404,"Hotel not found")
+    }
+
+    hotel.availableRooms = availableRooms
+
+    await hotel.save()
+
+    return res.status(200).json(
+        new ApiResponse(200, hotel, "Available rooms updated successfully")
+    )
+
+})
+
 
 export { 
     createOwner, 
     ownerlogin, 
     ownerlogout, 
     ownerProfile, 
-    checkIn, 
-    checkOut,
     seeBookings,
-    seeUserDetails
+    seeUserDetails,
+    updateAvailableRooms
 }
