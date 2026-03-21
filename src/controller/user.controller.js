@@ -4,6 +4,7 @@ import { apiResponse } from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import { findUser, registerUser } from "../service/user.service.js";
 import { Booking } from "../models/booking.model.js";
+import { searchQuery } from "../queries/hotel.queries.js";
 
 
 
@@ -266,6 +267,24 @@ const checkOut = asyncHandler(async (req,res)=>{
     )
 
 })
+
+const searchHotels = asyncHandler(async(req, res) => {
+    const { keyword } = req.body
+
+    if (!keyword) {
+        throw new ApiError(400, "keyword is required")
+    }
+
+    const query = searchQuery(keyword)
+    if (!query) {
+        throw new ApiError(400, "unabel to get a query")
+    }
+
+    
+})
+
+
+
 
 export { 
     createUser, 

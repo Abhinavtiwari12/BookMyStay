@@ -4,13 +4,13 @@ export const searchQuery = (keyword) => {
       $match: {
         $or: [
           {
-            productName: {
+            hotelName: {
               $regex: keyword,
               $options: "i"
             }
           },
           {
-            category: {
+            address: {
               $regex: keyword,
               $options: "i"
             }
