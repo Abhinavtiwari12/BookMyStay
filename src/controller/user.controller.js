@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { findUser, registerUser } from "../service/user.service.js";
 import { Booking } from "../models/booking.model.js";
 import { searchQuery } from "../queries/hotel.queries.js";
+import { Owner } from "../models/owner.model.js";
 
 
 
@@ -267,22 +268,27 @@ const checkOut = asyncHandler(async (req,res)=>{
     )
 
 })
+const searchHotels = asyncHandler(async (req,res)=>{
 
-const searchHotels = asyncHandler(async(req, res) => {
-    const { keyword } = req.body
+    const {city, hotelName} = req.query
 
-    if (!keyword) {
-        throw new ApiError(400, "keyword is required")
+    let filter = {}
+
+    if(city){
+        filter.city = { $regex: city, $options: "i" }
     }
 
-    const query = searchQuery(keyword)
-    if (!query) {
-        throw new ApiError(400, "unabel to get a query")
+    if(hotelName){
+        filter.hotelName = { $regex: hotelName, $options: "i" }
     }
 
-    
+    const hotels = await Owner.find(filter)
+
+    return res.status(200).json(
+        new apiResponse(200, hotels, "Hotels fetched successfully")
+    )
+
 })
-
 
 
 
@@ -295,5 +301,6 @@ export {
     getMyBookings, 
     cancelBooking,
     checkIn, 
-    checkOut
+    checkOut,
+    searchHotels
 }
