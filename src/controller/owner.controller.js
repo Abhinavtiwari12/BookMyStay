@@ -197,6 +197,37 @@ const updateAvailableRooms = asyncHandler(async (req,res)=>{
 
 })
 
+const getOwnerBookingHistory = asyncHandler(async (req,res)=>{
+
+    const ownerId = req.user._id
+    const {status, page = 1, limit = 10} = req.query
+
+    let filter = { hotel: ownerId }
+
+    if(status){
+        filter.bookingStatus = status
+    }
+
+    const skip = (page - 1) * limit
+
+    const bookings = await Booking.find(filter)
+        .populate("user", "fullName email phoneNumber")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+
+    const total = await Booking.countDocuments(filter)
+
+    return res.status(200).json(
+        new apiResponse(200, {
+            total,
+            page: Number(page),
+            bookings
+        }, "Owner booking history fetched successfully")
+    )
+
+})
+
 
 export { 
     createOwner, 
@@ -205,5 +236,6 @@ export {
     ownerProfile, 
     seeBookings,
     seeUserDetails,
-    updateAvailableRooms
+    updateAvailableRooms,
+    getOwnerBookingHistory
 }
