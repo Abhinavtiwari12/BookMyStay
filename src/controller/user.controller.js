@@ -290,6 +290,37 @@ const searchHotels = asyncHandler(async (req,res)=>{
 
 })
 
+const getMyBookingHistory = asyncHandler(async (req,res)=>{
+
+    const userId = req.user._id
+    const {status, page = 1, limit = 10} = req.query
+
+    let filter = { user: userId }
+
+    if(status){
+        filter.bookingStatus = status
+    }
+
+    const skip = (page - 1) * limit
+
+    const bookings = await Booking.find(filter)
+        .populate("hotel", "hotelName address city pricePerNight")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+
+    const total = await Booking.countDocuments(filter)
+
+    return res.status(200).json(
+        new apiResponse(200, {
+            total,
+            page: Number(page),
+            bookings
+        }, "User booking history fetched successfully")
+    )
+
+})
+
 
 
 export { 
@@ -302,5 +333,6 @@ export {
     cancelBooking,
     checkIn, 
     checkOut,
-    searchHotels
+    searchHotels,
+    getMyBookingHistory
 }
