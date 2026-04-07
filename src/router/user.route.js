@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { bookHotel, cancelBooking, checkIn, checkOut, createUser, getMyBookings, userlogin, userlogout, userProfile } from "../controller/user.controller";
+import { bookHotel, cancelBooking, checkIn, checkOut, createUser, getMyBookingHistory, getMyBookings, searchHotels, userlogin, userlogout, userProfile } from "../controller/user.controller";
 import { verifyUserjwt } from "../middleware/autho.middleware";
 
 
@@ -17,7 +17,8 @@ router.route('/getMyBookings').get(verifyUserjwt,getMyBookings)
 router.route('/cancelBooking/:bookingId').post(verifyUserjwt, cancelBooking)
 router.route('/checkIn/:bookingId').post(verifyUserjwt,checkIn)
 router.route('/checkOut/:bookingId').post(verifyUserjwt,checkOut)
-// router.route('/searchHotels')
+router.route('/searchHotels/:bookingid').get(verifyUserjwt, searchHotels)
+router.route('/getMyBookingHistory').get(verifyUserjwt, getMyBookingHistory)
 
 
 
